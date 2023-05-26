@@ -105,43 +105,24 @@ def set_style_excel(column_index, path_to_excel, columns_to_convert, data):
     workbook_other.save(path_to_excel)
 
 
-def main(path_to_projects, path_to_folder):
+def main(path_to_project, path_to_folder):
     """Управляющая функция"""
-    for path_to_project in path_to_projects:
-        try:
-            start = time.time()
-            project, msp = get_project(path_to_project)
-            data = fill_dataframe(project, msp)
-            file_name = os.path.splitext(os.path.basename(path_to_project))[0]
-            current_date = datetime.datetime.now().strftime("%d.%m.%Y")
-            path_to_excel = path_to_folder + "//" + file_name + "_ОФ_" + current_date + ".xlsx"
-            columns_to_convert = data.columns[data.columns.str.contains('начало|окончание', case=False)]
-            data.to_excel(path_to_excel, index=False)
-            column_index = data.columns.get_loc(config.id_column['Text5']) + 1
-            set_style_excel(column_index, path_to_excel, columns_to_convert, data)
-            end = time.time()
-            print(end - start)
-        except Exception as e:
-            print(e)
-            continue
+    path_to_excel = None
+    try:
+        start = time.time()
+        project, msp = get_project(path_to_project)
+        data = fill_dataframe(project, msp)
+        file_name = os.path.splitext(os.path.basename(path_to_project))[0]
+        current_date = datetime.datetime.now().strftime("%d.%m.%Y")
+        path_to_excel = path_to_folder + "//" + file_name + "_ОФ_" + current_date + ".xlsx"
+        columns_to_convert = data.columns[data.columns.str.contains('начало|окончание', case=False)]
+        data.to_excel(path_to_excel, index=False)
+        column_index = data.columns.get_loc(config.id_column['Text5']) + 1
+        set_style_excel(column_index, path_to_excel, columns_to_convert, data)
+        end = time.time()
+        print(end - start)
+    except Exception as e:
+        print(e)
+        return path_to_excel
     return path_to_excel
 
-
-def find_mpp_files(folder):
-    mpp_files = []
-
-    for root, dirs, files in os.walk(folder):
-        for file in files:
-            if file.endswith(".mpp"):
-                file_path = os.path.join(root, file)
-                mpp_files.append(file_path)
-
-    return mpp_files
-
-if __name__ == "__main__":
-    paths=find_mpp_files(r"C:\Users\semenhomec\PycharmProjects\pythonProject2")
-    start = time.time()
-    for i in paths:
-        print(main(r"C:\Users\semenhomec\PycharmProjects\pythonProject2\051-2002203_2023_нг_ф_(06.04).mpp"))
-    end = time.time()
-    print(end - start)
